@@ -98,13 +98,34 @@ def neighbors(r, c, rows, cols, connectivity=4):
 
 
 
-
-
-
-    
-
-    
-
+def _find_blobs(binary, connectivity=4):
+    q = deque()
+    seen = set()
+    blobs = []
+   
+    for r in range(len(binary)):
+        for c in range(len(binary[0])):
+            if((r, c) not in seen and binary[r][c] == 1):
+                blob = []
+                blob.append((r,c))
+                seen.add((r, c))
+                candidates = neighbors(r, c, len(binary), len(binary[0]), connectivity = connectivity)
+                for coord in candidates:
+                    if coord not in seen and binary[coord[0]][coord[1]] == 1:
+                        seen.add((coord[0], coord[1]))
+                        blob.append((coord[0], coord[1]))
+                        q.append((coord[0], coord[1]))
+                # pop left, add candidate 1s
+                while(q):
+                    bfs = q.popleft()
+                    candidates = neighbors(bfs[0], bfs[1], len(binary), len(binary[0]), connectivity = connectivity)
+                    for coord in candidates:
+                        if coord not in seen and binary[coord[0]][coord[1]] == 1:
+                            seen.add((coord[0], coord[1]))
+                            blob.append((coord[0], coord[1]))
+                            q.append((coord[0], coord[1]))
+                blobs.append(blob)
+    return blobs
 
 def count_blobs(binary, connectivity=4):
     """binary: list of lists of 0/1. Return the number of connected regions of 1s.
@@ -112,7 +133,9 @@ def count_blobs(binary, connectivity=4):
      [0,1,0],
      [0,0,1]]  -> 2 with connectivity=4, 1 with connectivity=8
     """
-    pass
+    return len(_find_blobs(binary, connectivity))
+
+    
 
 
 def blob_stats(binary, connectivity=4):
@@ -122,7 +145,37 @@ def blob_stats(binary, connectivity=4):
          "bbox": (min_row, min_col, max_row, max_col),   # inclusive
          "centroid": (mean_row, mean_col)}               # floats
     """
-    pass
+    result = []
+    blobs = _find_blobs(binary, connectivity)
+    for blob in blobs:
+        max_row, max_col= 0, 0
+        min_row, min_col = len(binary) -1, len(binary[0]) -1
+        sum_r = 0
+        sum_c = 0
+         
+        for r, c in blob:
+            max_row = max(max_row, r)
+            max_col = max(max_col, c)
+            min_row = min(min_row, r)
+            min_col = min(min_col, c)
+            sum_r += r
+            sum_c += c
+        mean_row = sum_r / len(blob)
+        mean_col = sum_c / len(blob)
+        
+        result.append({
+            "area": int(len(blob)),
+            "bbox": (min_row, min_col, max_row, max_col),
+            "centroid": (float(mean_row), float(mean_col)),
+            "blob": blob
+        })
+
+    result.sort(key = lambda b: (-b['area'], b['bbox'][0], b['bbox'][1]))
+
+    return result
+
+
+    
 
 
 def largest_blob_mask(binary, connectivity=4):
@@ -130,7 +183,25 @@ def largest_blob_mask(binary, connectivity=4):
     everything else 0. If there are no blobs, return a grid of all 0s.
     Ties -> the blob whose (min_row, min_col) is smallest.
     """
-    pass
+    rows, cols = len(binary), len(binary[0])
+    # I am aware this is inefficent as we call find blobs three times, but i dont want to edit the above functions for simplicity
+    # If asked in an interview i would mention i would design it so we only have to do BFS once. 
+    if not count_blobs(binary, connectivity):
+        return np.zeros((rows, cols),dtype = int).tolist()
+
+    arr = np.zeros((rows, cols), dtype = int)
+    blob_info = blob_stats(binary, connectivity)
+    max_blob = blob_info[0] # Already sorted correctled
+    fill_r = [row[0] for row in max_blob['blob']] # Optimization here, we pass twice, could pass once. I added the actual blob in the dict
+    fill_c = [col[1] for col in max_blob['blob']]
+    arr[fill_r, fill_c] = 1
+
+    return arr.tolist()
+    
+    
+
+
+
 
 
 # ================= PART C: Filters (target 30 min) =================
