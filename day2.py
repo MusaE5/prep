@@ -212,7 +212,31 @@ def mean_filter_3x3(img):
     Border handling: only average the neighbours that exist (no padding).
     Return floats. Do not modify img.
     """
-    pass
+    offsets  = [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (1, -1), (-1, 1), (1, 1)]
+    rows, cols = len(img), len(img[0])
+    # Shallow copy bug, when multiply inner list by rows, it refrences the inner list, not copies, because lists are mutable
+    # (can be modified in place, unlike a tuple)
+    # result = [[0] * cols] * rows 
+
+    # This allocates new memory on every for loop iteration for the rows
+    grid = [[0] * cols for _ in range(rows)]
+
+    for r in range(rows):
+        for c in range(cols):
+            pixel_values = [img[r][c]]
+            for offset in offsets:
+                dr, dc = offset[0], offset[1]
+                if( r + dr >= rows or r+dr <0 or c+dc >=cols or c+dc<0):
+                    continue
+                pixel_values.append(img[r+dr][c+dc])
+            average = (sum(pixel_values) / len(pixel_values))
+            grid[r][c] = average
+    return grid
+
+
+
+
+            
 
 
 def sobel_magnitude(img):
