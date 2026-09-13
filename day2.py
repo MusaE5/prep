@@ -53,7 +53,7 @@ def otsu_like(img, t_values):
     This is the core of Otsu's method: automatic threshold selection.
     """
     max_t = None
-    for t in t_values: #Handles down stream tie break
+    for t in t_values: 
         below = img<=t
         w_b, w_f = np.mean(below), np.mean(~below)
         if (w_b == 0 or w_f == 0):
@@ -82,6 +82,42 @@ def neighbors(r, c, rows, cols, connectivity=4):
     connectivity=4 -> N, S, E, W.  connectivity=8 -> also the diagonals.
     Order does not matter.
     """
+    # Compute for connectivity = 4 first
+    result = []
+    #West
+    if(c!=0 and cols > 1):
+        result.append((r,c-1))
+    #East
+    if(c!= cols-1 and cols >1):
+        result.append((r, c+1))
+    #North
+    if(r!=0 and rows>1):
+        result.append((r-1, c))
+    #South
+    if(r!=rows-1 and rows>1):
+        result.append((r+1, c))
+
+    if(connectivity == 4):
+        return result
+
+    # North West
+    if(c!=0 and cols>1 and r!=0 and rows>1):
+        result.append((r-1, c-1))
+    # North East
+    if(c!= cols-1 and cols>1 and r!=0 and rows>1):
+            result.append((r-1, c+1))
+    #South West
+    if(c!= 0 and cols>1 and r!= rows-1 and rows>1):
+        result.append((r+1, c-1))
+    #South East
+    if(c!= cols-1 and cols>1 and r!= rows-1 and rows>1):
+            result.append((r+1, c+1))
+    return result
+
+
+
+    
+
     
 
 
