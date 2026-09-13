@@ -82,37 +82,22 @@ def neighbors(r, c, rows, cols, connectivity=4):
     connectivity=4 -> N, S, E, W.  connectivity=8 -> also the diagonals.
     Order does not matter.
     """
-    # Compute for connectivity = 4 first
     result = []
-    #West
-    if(c!=0 and cols > 1):
-        result.append((r,c-1))
-    #East
-    if(c!= cols-1 and cols >1):
-        result.append((r, c+1))
-    #North
-    if(r!=0 and rows>1):
-        result.append((r-1, c))
-    #South
-    if(r!=rows-1 and rows>1):
-        result.append((r+1, c))
+    offsets = [(0, -1), (0, 1), (-1, 0), (1, 0)]
+    if connectivity == 8:
+        offsets  = [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (1, -1), (-1, 1), (1, 1)]
 
-    if(connectivity == 4):
-        return result
-
-    # North West
-    if(c!=0 and cols>1 and r!=0 and rows>1):
-        result.append((r-1, c-1))
-    # North East
-    if(c!= cols-1 and cols>1 and r!=0 and rows>1):
-            result.append((r-1, c+1))
-    #South West
-    if(c!= 0 and cols>1 and r!= rows-1 and rows>1):
-        result.append((r+1, c-1))
-    #South East
-    if(c!= cols-1 and cols>1 and r!= rows-1 and rows>1):
-            result.append((r+1, c+1))
+    for dr, dc in offsets:
+        new_r, new_c = r+dr, c+dc
+        # Check if out of bounds
+        if(new_r >= rows or new_c >=cols or new_r < 0 or new_c <0):
+            continue
+        else:
+            result.append((new_r, new_c))
     return result
+
+
+
 
 
 
