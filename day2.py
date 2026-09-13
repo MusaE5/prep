@@ -52,16 +52,23 @@ def otsu_like(img, t_values):
 
     This is the core of Otsu's method: automatic threshold selection.
     """
-    variances = []
-    for t in sorted(t_values): #Handles down stream tie break
-        w_b, w_f = np.mean(img<=t), np.mean(img>t)
+    max_t = None
+    for t in t_values: #Handles down stream tie break
+        below = img<=t
+        w_b, w_f = np.mean(below), np.mean(~below)
         if (w_b == 0 or w_f == 0):
             continue
-        mean_b, mean_f = np.mean(img[img<=t]), np.mean(img[img>t]) 
-        variances.append((w_b * w_f * (mean_b - mean_f)**2, t))
+        mean_b, mean_f = np.mean(img[below]), np.mean(img[~below]) 
+        variance = w_b * w_f * (mean_b - mean_f)**2
+        if max_t is None:
+            max_t = (variance, t)
+        elif variance > max_t[0]:
+            max_t = (variance, t)
+        elif variance == max_t[0] and t< max_t[1]:
+            max_t = (variance, t)
 
-    variances.sort(key = lambda x: x[0], reverse = True)
-    return variances[0][1] if variances else None
+
+    return max_t[1] if max_t is not None else None
 
 
     
@@ -75,7 +82,7 @@ def neighbors(r, c, rows, cols, connectivity=4):
     connectivity=4 -> N, S, E, W.  connectivity=8 -> also the diagonals.
     Order does not matter.
     """
-    pass
+    
 
 
 def count_blobs(binary, connectivity=4):
