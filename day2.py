@@ -84,7 +84,7 @@ def neighbors(r, c, rows, cols, connectivity=4):
     Order does not matter.
     """
     result = []
-    offsets = [(0, -1), (0, 2), (-1, 0), (1, 0)]
+    offsets = [(0, -1), (0, 1), (-1, 0), (1, 0)]
     if connectivity == 8:
         offsets  = [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (1, -1), (-1, 1), (1, 1)]
 
