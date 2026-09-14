@@ -1,5 +1,5 @@
 """
-DAY 2 - 2D grids, connected components, filters
+DAY 2 - 2D grids, connected components, filters (stable)
 Rules: no autocomplete, no docs, no AI. Narrate out loud as you code.
 Run:  python day2.py
 Target: all PASS in under 2 hours.
