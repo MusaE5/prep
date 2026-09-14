@@ -238,12 +238,12 @@ def mean_filter_3x3(img):
 
             
 
-
+import math
 def sobel_magnitude(img):
     """NUMPY in, NUMPY out. img: 2D float array.
     Apply the 3x3 Sobel kernels to every pixel that has a full 3x3 neighbourhood,
     then return sqrt(gx**2 + gy**2).
-    Output shape is (rows-2, cols-2) -- no padding, borders dropped.
+    no padding, borders dropped.
 
     Gx = [[-1, 0, 1],     Gy = [[-1, -2, -1],
           [-2, 0, 2],           [ 0,  0,  0],
@@ -251,7 +251,39 @@ def sobel_magnitude(img):
 
     Loops over the OUTPUT pixels are fine here.
     """
-    pass
+    Gx = np.array([[-1, 0, 1],     
+                   [-2, 0, 2],         
+                   [-1, 0, 1]])     
+    
+    Gy = np.array([[-1, -2, -1],     
+                   [0, 0, 0],         
+                   [1, 2, 1]])
+
+    
+    rows, cols = img.shape
+    result = np.zeros((rows-2, cols-2), dtype =np.float64)
+    for r in range(1, rows -1):
+        for c in range(1, cols-1):
+            # Not needed because loop indicies garuntee we have all the neighbors we need
+            #neighbor_pixels = neighbors(r, c, rows, cols, connectivity=8)
+            #if(len(neighbor_pixels) != 8):
+                #continue
+            matrix = img[r-1: r+2, c-1:c+2]
+            conv_gx = np.sum(matrix * Gx)
+            conv_gy = np.sum(matrix * Gy)
+            magnitude = math.sqrt((conv_gx**2 + conv_gy**2))
+            result[r-1][c-1] = magnitude
+    return result
+            
+    
+
+
+
+
+
+
+
+
 
 
 # ================= PART D: Transforms (target 15 min) =================
