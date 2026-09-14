@@ -212,14 +212,38 @@ def mean_filter_3x3(img):
     Border handling: only average the neighbours that exist (no padding).
     Return floats. Do not modify img.
     """
-    pass
+    offsets  = [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (1, -1), (-1, 1), (1, 1)]
+    rows, cols = len(img), len(img[0])
+    # Shallow copy bug, when multiply inner list by rows, it refrences the inner list, not copies, because lists are mutable
+    # (can be modified in place, unlike a tuple)
+    # result = [[0] * cols] * rows 
+
+    # This allocates new memory on every for loop iteration for the rows
+    grid = [[0] * cols for _ in range(rows)]
+
+    for r in range(rows):
+        for c in range(cols):
+            pixel_values = [img[r][c]]
+            for offset in offsets:
+                dr, dc = offset[0], offset[1]
+                if( r + dr >= rows or r+dr <0 or c+dc >=cols or c+dc<0):
+                    continue
+                pixel_values.append(img[r+dr][c+dc])
+            average = (sum(pixel_values) / len(pixel_values))
+            grid[r][c] = average
+    return grid
 
 
+
+
+            
+
+import math
 def sobel_magnitude(img):
     """NUMPY in, NUMPY out. img: 2D float array.
     Apply the 3x3 Sobel kernels to every pixel that has a full 3x3 neighbourhood,
     then return sqrt(gx**2 + gy**2).
-    Output shape is (rows-2, cols-2) -- no padding, borders dropped.
+    no padding, borders dropped.
 
     Gx = [[-1, 0, 1],     Gy = [[-1, -2, -1],
           [-2, 0, 2],           [ 0,  0,  0],
@@ -227,7 +251,39 @@ def sobel_magnitude(img):
 
     Loops over the OUTPUT pixels are fine here.
     """
-    pass
+    Gx = np.array([[-1, 0, 1],     
+                   [-2, 0, 2],         
+                   [-1, 0, 1]])     
+    
+    Gy = np.array([[-1, -2, -1],     
+                   [0, 0, 0],         
+                   [1, 2, 1]])
+
+    
+    rows, cols = img.shape
+    result = np.zeros((rows-2, cols-2), dtype =np.float64)
+    for r in range(1, rows -1):
+        for c in range(1, cols-1):
+            # Not needed because loop indicies garuntee we have all the neighbors we need
+            #neighbor_pixels = neighbors(r, c, rows, cols, connectivity=8)
+            #if(len(neighbor_pixels) != 8):
+                #continue
+            matrix = img[r-1: r+2, c-1:c+2]
+            conv_gx = np.sum(matrix * Gx)
+            conv_gy = np.sum(matrix * Gy)
+            magnitude = math.sqrt((conv_gx**2 + conv_gy**2))
+            result[r-1][c-1] = magnitude
+    return result
+            
+    
+
+
+
+
+
+
+
+
 
 
 # ================= PART D: Transforms (target 15 min) =================
@@ -238,12 +294,36 @@ def rotate90_cw(img):
      [3,4]] -> [[3,1],
                 [4,2]]
     """
-    pass
+    # Create a python array with same size
+    #Loop through columns backwards
+    #Apply to rows
+    rows = len(img)
+    cols = len(img[0])
+    # rows and cols swapped because of rotation
+    result = [[0] * rows for _ in range(cols)]
+    row_idx = 0
+    for c in range(cols):
+        column_offset = 0
+        for r in range(rows-1, -1, -1):
+            result[row_idx][column_offset] = img[r][c]
+            column_offset +=1
+        row_idx +=1
+    return result
+
+
+
 
 
 def transpose_py(img):
     """PURE PYTHON. Swap rows and columns. Works on non-square grids."""
-    pass
+    rows = len(img)
+    cols = len(img[0])
+    result = [[0] * rows for _ in range(cols)] # Swapped
+    for c in range(cols):
+        for r in range(rows):
+            result[c][r] = img[r][c]
+    return result
+
 
 
 # ======================= TESTS (don't edit) =======================
