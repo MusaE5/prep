@@ -294,12 +294,36 @@ def rotate90_cw(img):
      [3,4]] -> [[3,1],
                 [4,2]]
     """
-    pass
+    # Create a python array with same size
+    #Loop through columns backwards
+    #Apply to rows
+    rows = len(img)
+    cols = len(img[0])
+    # rows and cols swapped because of rotation
+    result = [[0] * rows for _ in range(cols)]
+    row_idx = 0
+    for c in range(cols):
+        column_offset = 0
+        for r in range(rows-1, -1, -1):
+            result[row_idx][column_offset] = img[r][c]
+            column_offset +=1
+        row_idx +=1
+    return result
+
+
+
 
 
 def transpose_py(img):
     """PURE PYTHON. Swap rows and columns. Works on non-square grids."""
-    pass
+    rows = len(img)
+    cols = len(img[0])
+    result = [[0] * rows for _ in range(cols)] # Swapped
+    for c in range(cols):
+        for r in range(rows):
+            result[c][r] = img[r][c]
+    return result
+
 
 
 # ======================= TESTS (don't edit) =======================
