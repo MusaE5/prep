@@ -211,10 +211,54 @@ class RingBuffer:
              mean()
 
     push reports what it evicted, if anything. An invalid capacity is an error.
-
-    Do NOT use collections.deque -- implement it with a plain list and an index.
-    That is the point: this is how a real acquisition buffer works.
     """
+
+    def __init__(self, capacity):
+        if capacity <=0:
+            raise ValueError("capacity must be >=1")
+        self.capacity = capacity
+        self.buffer = [None] * capacity
+        self.start = 0
+        self.n = 0
+        self.total_sum = 0
+    
+
+    def push(self, value):
+   
+        if self.n < self.capacity:
+            index = (self.start + self.n) % self.capacity
+            evicted = self.buffer[index]
+            self.buffer[index] = value
+            self.n = min(self.n +1, self.capacity)
+            self.total_sum += value
+        else:
+            index = (self.start + self.n) % self.capacity
+            evicted = self.buffer[index]
+            self.total_sum -= self.buffer[index] if self.buffer[index] is not None else 0
+            self.total_sum += value
+            self.buffer[index] = value
+            self.start = 0 if (self.start == self.capacity -1) else self.start +1 
+
+        return evicted
+
+
+    def is_full(self):
+        return self.n == self.capacity
+
+
+    def to_list(self):
+     return (self.buffer[self.start:] + self.buffer[0:self.start]) if self.n == self.capacity else self.buffer[self.start:self.n]
+
+    def mean(self):
+        return (self.total_sum / self.n) if self.n !=0 else None
+
+
+    #dunder method (overloading)
+    def __len__(self):
+        return min(self.n, self.capacity)
+
+
+
     
 
 
