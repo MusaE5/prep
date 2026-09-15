@@ -215,7 +215,7 @@ class RingBuffer:
     Do NOT use collections.deque -- implement it with a plain list and an index.
     That is the point: this is how a real acquisition buffer works.
     """
-    pass
+    
 
 
 # ================= PART D: Edges and debouncing (target 25 min) =================
