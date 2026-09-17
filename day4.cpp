@@ -12,7 +12,16 @@
 // can explain, not just type.
 // =====================================================================
 
-
+#include <iostream>
+#include <vector>
+#include <string>
+#include <memory>
+#include <map>
+#include <cmath>
+#include <sstream>
+#include <algorithm>
+#include <stdexcept>
+#include <optional>
 
 // =====================================================================
 // PART A: A plain class  (target 20 min)
@@ -28,12 +37,26 @@
 // that does not modify the object as const.
 
 class Reading {
-    // TODO
+    double ts_{};
+    double value_{};
 public:
-    Reading(double ts, double value);
-    double ts() const;
-    double value() const;
-    bool inRange(double lo, double hi) const;
+
+    // Default constructor
+    Reading() {}
+    // Paramaterized constructor
+    Reading(double t, double v): ts_{t}, value_{v}{}
+
+
+    double ts() const{
+        return ts_;
+    }
+    double value() const{
+        return value_;
+    }
+
+    bool inRange(double low, double high) const{
+        return low<=value_ && high>= value_;
+    }
 };
 
 
@@ -117,18 +140,100 @@ std::vector<std::string> anomalousAt(
 // push must report "evicted X" or "evicted nothing" -- pick a return type
 // that can express both without a sentinel value.
 
-class RingBuffer {
-    // TODO
-public:
-    explicit RingBuffer(std::size_t capacity);
-    std::optional<double> push(double value);
-    std::size_t size() const;
-    bool isFull() const;
-    bool empty() const;
-    std::vector<double> toVector() const;
-    std::optional<double> mean() const;
-};
+// The tests call these, so keep the names:
+//   RingBuffer(capacity)
+//   push(value)
+//   size()
+//   isFull()
+//   empty()
+//   toVector()
+//   mean()
+//
+// Everything else -- parameter types, return types, which members you store --
+// is yours to decide. Two of these have to express "there is no answer"
+// without reserving a magic value; C++17 has a type for that.
 
+// TODO: class RingBuffer
+#include <vector>
+#include <cstdint>
+class RingBuffer{
+
+std::uint64_t capacity{};
+std::vector<double> buffer{};
+std::uint64_t start{};
+std::uint64_t n{};
+double total_sum{};
+
+
+
+public:
+
+    RingBuffer(int size): capacity(size), buffer(size){
+        if(size<=0){
+            throw std::invalid_argument("Capacity must be >=1");
+        }
+    }
+    std::optional<double> push(double value){
+        double prev_value = buffer[(n + start) % capacity];
+        buffer[(n + start) % capacity] = value;
+        if(n< capacity){
+            ++n;
+            total_sum += value;
+            return std::nullopt;
+        }
+        else{
+            total_sum -= prev_value;
+            total_sum += value;
+            ++start;
+            return prev_value;
+        }
+    }
+
+    std::size_t size() const{
+        return static_cast<std::size_t>(n);
+    }
+
+    bool isFull() const{
+        return n == capacity;
+    }
+    bool empty() const{
+        return n==0;
+    }
+    std::optional<double> mean() const{
+        if(n==0){
+            return std::nullopt;
+        }
+
+        return total_sum / n;
+    }
+    std::vector<double> toVector() const{
+        if(n < capacity){
+            std::vector<double> result;
+            for(int i = 0; i<n; ++i){
+                result.push_back(buffer[i]);
+            }
+            return result;
+        }
+        else{
+            std::vector<double> result;
+            for(int i = (start % capacity); i<capacity; ++i){
+                result.push_back(buffer[i]);
+            }
+           
+            for(int i = 0; i< (start% capacity); ++i){
+                result.push_back(buffer[i]);
+            }
+            return result;
+            
+        }
+    }
+
+
+
+
+
+
+};
 
 // =====================================================================
 // PART D: STL + parsing  (target 25 min)
