@@ -269,14 +269,38 @@ def rising_edges(signal):
     The index reported is where the 1 appears.
     [0, 1, 1, 0, 1] -> [1, 4]
     """
-    pass
+    if len(signal) <2:
+        return []
+    rising = []
+
+    l, r = 0, 1
+    while r<len(signal):
+        if (signal[l]^signal[r]) and signal[r]:
+            rising.append(r)
+        l+=1
+        r+=1
+    return rising
+
 
 
 def falling_edges(signal):
     """Indices where the value goes 1 -> 0. Index is where the 0 appears.
     [0, 1, 1, 0, 1] -> [3]
     """
-    pass
+    if len(signal) <2:
+        return []
+    
+    rising = []
+
+    l, r = 0, 1
+    while r<len(signal):
+        if (signal[l]^signal[r]) and not signal[r]:
+            rising.append(r)
+        l+=1
+        r+=1
+    return rising
+
+
 
 
 def debounce(signal, n):
@@ -292,14 +316,52 @@ def debounce(signal, n):
                     ^ lone 1 ignored     ^ two 1s: switch at idx 5
                                                      ^ two 0s: switch at idx 8
     """
-    pass
+
+    if not signal:
+        return []
+    
+    result = signal.copy()
+    state = signal[0]
+    streak = 0
+
+    for index, num in enumerate(signal):
+        if num != state:
+            streak+=1
+            if streak <n:
+                result[index] = state
+            elif streak>=n:
+                state = num
+             
+        if num == state:
+            streak = 0
+
+    
+    return result
 
 
 def pulse_widths(signal):
     """Return the length of every run of consecutive 1s, in order.
     [0,1,1,0,1,1,1,0] -> [2, 3]
     """
-    pass
+    if not signal:
+        return []
+
+    result = []
+    i = 0
+    while i < len(signal):
+        if signal[i] != 1:
+            i+=1
+        else:
+            counter = 1
+            i+=1
+            while i<len(signal) and signal[i] == 1:
+                counter +=1
+                i+=1
+            result.append(counter)
+
+    return result
+            
+
 
 
 # ======================= TESTS (don't edit) =======================
